@@ -1,0 +1,25 @@
+{
+  "name": "stock-scraper",
+  "version": "1.0.0",
+  "description": "Slim Stock scraper for data extraction",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "analyze": "tsx src/analyze.ts"
+  },
+  "keywords": ["scraper", "stock", "playwright"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@playwright/browser-chromium": "^1.40.1",
+    "dotenv": "^16.3.1",
+    "playwright": "^1.40.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
