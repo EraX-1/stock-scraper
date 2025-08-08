@@ -1,149 +1,124 @@
-# Stock Scraper (Slim Version)
+# Stock Scraper
 
-Stockサイトのデータを効率的にスクレイピングするためのスリムなツールです。
+情報蓄積サイト（Stock）からMHTML形式でコンテンツをスクレイピングし、Azure Blob Storageに保存するツールです。
 
-## 機能
+## 🌟 概要
 
-1. **Stockへのログイン** - Cookie管理による自動ログイン
-2. **単一ページのDOM構造解析** - 最適なセレクタの自動検出
-3. **対象ページ一覧のクロール** - Stock内のページURLを自動収集
-4. **データ抽出** - DOM構造に基づく効率的なデータ抽出
-5. **JSON形式で保存** - 構造化されたデータの保存
+Stock Scraperは、情報共有プラットフォーム「Stock」から記事・資料を自動収集するWebスクレイピングツールです。Playwright を使用してブラウザを自動操作し、認証が必要なページも含めて全コンテンツをMHTML形式で完全保存します。
 
-## セットアップ
+### 🎯 主な用途
+- **社内情報の自動収集**: ナレッジベース、手順書、FAQ等の定期取得
+- **情報アーカイブ**: 重要な業務情報の長期保存・検索
+- **データ分析基盤**: 収集データを活用した独自分析・レポート作成
+- **バックアップ目的**: 情報資産の安全な外部保存
 
-### 1. 依存関係のインストール
+### ⚙️ 技術スタック
+- **TypeScript** - 型安全な開発
+- **Playwright** - ブラウザ自動操作・スクレイピング
+- **Azure Blob Storage** - クラウドデータ保存
+- **Docker** - コンテナ化・デプロイ
+- **Azure Container Instances** - 自動実行環境
+- **Logic Apps** - 定期実行・スケジューリング
 
-```bash
-cd yuyama-scraper-stock
-npm install
-```
+### 🚀 特徴
+- **完全自動化**: ログインからデータ収集・保存まで無人実行
+- **高い信頼性**: エラーハンドリング・リトライ機能で安定動作
+- **スケーラブル**: クラウド環境で大量データ処理に対応
+- **保守性**: モジュール化された設計で拡張・変更が容易
 
-### 2. 環境変数の設定
+## 📋 機能
 
-`.env`ファイルを作成し、以下の内容を設定：
+- 🔐 自動ログイン
+- 📝 全ページの自動取得・保存
+- ⚡ 並列処理による高速スクレイピング
+- ☁️ Azure Blob Storage自動アップロード
+- 📦 MHTML形式での完全保存
+
+## 🚀 セットアップ
+
+### 環境変数設定
+`.env`ファイルを作成：
 
 ```env
-# Stock credentials
-STOCK_EMAIL=your-email@example.com
-STOCK_PASSWORD=your-password
+STOCK_URL=https://your-stock-site.com
+STOCK_EMAIL=your_email@example.com
+STOCK_PASSWORD=your_password
 
-# Browser settings
-HEADLESS=false  # true でヘッドレスモード
-DEBUG=false     # true でデバッグモード
+HEADLESS=false
+DEBUG=false
 
-# Target URL for single page analysis (optional)
-TARGET_URL=https://www.stock-app.jp/teams/xxxxx/dashboard/xxxxx/stocks/xxxxx/edit
+AZURE_STORAGE_CONNECTION_STRING=your_connection_string
 ```
 
-## 使用方法
-
-### 基本的な使用（全体スクレイピング）
+### インストール・実行
 
 ```bash
-npm run dev
+# 依存関係インストール
+npm install
+
+# ローカル実行
+npm run auto-sync
 ```
 
-このコマンドで以下の処理が実行されます：
-1. Stockにログイン
-2. ページ一覧を取得
-3. 各ページからデータを抽出
-4. `data/stock-data-{timestamp}.json`に保存
-
-### 単一ページのDOM構造解析
-
-特定のページのDOM構造を解析する場合：
-
-```bash
-npm run analyze <URL>
-```
-
-または環境変数で指定：
-
-```bash
-TARGET_URL=https://www.stock-app.jp/teams/... npm run analyze
-```
-
-## 出力データ形式
-
-### スクレイピングデータ (stock-data-*.json)
-
-```json
-[
-  {
-    "url": "https://www.stock-app.jp/teams/c20282/dashboard/1259144/stocks/19132873/edit",
-    "title": "投稿タイトル",
-    "content": "投稿内容...",
-    "author": "投稿者名",
-    "timestamp": "2024-01-20T12:00:00Z",
-    "tags": ["タグ1", "タグ2"],
-    "teamId": "c20282",
-    "dashboardId": "1259144",
-    "stockId": "19132873"
-  }
-]
-```
-
-### DOM解析結果 (dom-analysis.json)
-
-```json
-{
-  "url": "解析対象URL",
-  "analyzedAt": "2024-01-20T12:00:00Z",
-  "domStructure": {
-    "titleSelector": ".dashboardBody__title",
-    "contentSelector": ".dashboardBody__content",
-    "authorSelector": ".author",
-    "timestampSelector": ".timestamp",
-    "tagsSelector": ".tag"
-  },
-  "sampleData": {
-    "title": "サンプルタイトル",
-    "content": "サンプル内容"
-  }
-}
-```
-
-## ディレクトリ構造
+## 📂 プロジェクト構造
 
 ```
-yuyama-scraper-stock/
-├── src/
-│   ├── auth/           # 認証関連
-│   │   └── stockAuth.ts
-│   ├── scraper/        # スクレイピングロジック
-│   │   ├── stockScraper.ts
-│   │   └── domAnalyzer.ts
-│   ├── types/          # 型定義
-│   │   └── index.ts
-│   ├── index.ts        # メインエントリーポイント
-│   └── analyze.ts      # DOM解析ツール
-├── data/               # 出力データ（自動生成）
-├── cookies/            # Cookie保存（自動生成）
-├── package.json
-├── tsconfig.json
-├── .env.example
-└── README.md
+stock-scraper/
+├── src/               # TypeScriptソースコード
+├── mhtml/             # スクレイピング結果
+├── cookies/           # 認証情報
+├── dist/              # ビルド済みコード
+├── package.json       # Node.js設定
+├── tsconfig.json      # TypeScript設定
+└── .env               # 環境変数
 ```
 
-## 注意事項
+## 📋 TODO: qast-scraperと同じ機能を実装
 
-- 初回実行時はブラウザでのログインが必要です
-- 2回目以降はCookieによる自動ログインが可能です
-- レート制限を考慮し、各ページ間に1秒の待機時間を設けています
-- デフォルトでは最初の10件のみスクレイピングします（変更可能）
+### 1. 基本ファイル構造の作成
+- [ ] `src/auth/` ディレクトリ作成
+  - [ ] `cookieManager.ts` - Cookie管理機能
+  - [ ] `stockAuth.ts` - Stock認証処理
+- [ ] `src/storage/` ディレクトリ作成  
+  - [ ] `azureBlobManager.ts` - Azure Blob Storage管理
+- [ ] `src/types/` ディレクトリ作成
+  - [ ] `index.ts` - 型定義ファイル
+- [ ] `mhtml/` ディレクトリ作成（スクレイピング結果保存用）
+- [ ] `cookies/` ディレクトリ作成（認証情報保存用）
 
-## トラブルシューティング
+### 2. 認証・ログイン機能
+- [ ] `loginSeparate.ts` - 独立ログイン処理
+- [ ] Cookie保存・読み込み機能
+- [ ] JWT認証対応（必要に応じて）
 
-### ログインできない場合
-- 環境変数の設定を確認
-- `HEADLESS=false`でブラウザの動作を確認
-- `cookies/`フォルダを削除して再ログイン
+### 3. スクレイピング機能
+- [ ] `improvedScraper.ts` - 改良版スクレイパー（qastのimprovedMemoScraperに相当）
+- [ ] `fullUpdateScraper.ts` - 全件スクレイピング
+- [ ] MHTML形式での保存機能
+- [ ] 並列処理対応
+- [ ] エラーハンドリング・リトライ機能
 
-### セレクタが見つからない場合
-- `npm run analyze`で最新のDOM構造を解析
-- `src/scraper/domAnalyzer.ts`の代替セレクタを調整
+### 4. 自動同期・統合機能  
+- [ ] `autoSync.ts` - 自動同期処理（ログイン→スクレイピング→アップロード）
+- [ ] Azure Blob Storage自動アップロード
+- [ ] 404ページ自動除外機能
+- [ ] 連続エラー時の停止制限
 
-### データが取得できない場合
-- `DEBUG=true`でデバッグモードを有効化
-- ブラウザのコンソールでエラーを確認
+### 5. Docker・デプロイ対応
+- [ ] `Dockerfile` 作成
+- [ ] Docker関連スクリプト作成
+- [ ] Azure Container Instances対応
+- [ ] Logic Apps定期実行設定
+
+### 6. 設定・環境変数
+- [ ] `.env`ファイル本格設定
+- [ ] 設定値のバリデーション
+- [ ] デバッグモード対応
+
+### 7. 実装の参考
+qast-scraperの以下ファイルを参考に実装：
+- `src/auth/qastAuth.ts` → `src/auth/stockAuth.ts`
+- `src/improvedMemoScraper.ts` → `src/improvedScraper.ts`  
+- `src/fullUpdateScraper.ts` → `src/fullUpdateScraper.ts`
+- `src/autoSync.ts` → `src/autoSync.ts`
+- `src/containerMain.ts` → `src/containerMain.ts`
