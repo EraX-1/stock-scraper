@@ -1,0 +1,49 @@
+{
+  "cookies": [
+    {
+      "name": "_yjsu_yjad",
+      "value": "1754768566.15649625-99f4-45ce-ad91-25fd1b0f8c76",
+      "domain": ".stock-app.jp",
+      "path": "/",
+      "expires": 1786304566,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.stock-app.jp",
+      "localStorage": [
+        {
+          "name": "accessToken",
+          "value": "UiFwm1x_HUzT1b4dVYHZ9Q"
+        },
+        {
+          "name": "tokenType",
+          "value": "Bearer"
+        },
+        {
+          "name": "expiry",
+          "value": "1786304566"
+        },
+        {
+          "name": "uid",
+          "value": "tool@eraxai.info"
+        },
+        {
+          "name": "client",
+          "value": "MreBb3FwLB7BseSiYwqImw"
+        },
+        {
+          "name": "sessionTrackId",
+          "value": "5680e140-ef73-428a-883c-30f2db87bac0"
+        },
+        {
+          "name": "persist:root",
+          "value": "{\"companiesData\":\"{\\\"company\\\":null,\\\"companyLoadedAt\\\":null,\\\"companies\\\":[{\\\"id\\\":20282,\\\"domain\\\":\\\"c20282\\\",\\\"name\\\":\\\"湯山製作所 System Solution\\\"}],\\\"companiesLoadedAt\\\":1754768567}\",\"companyJoins\":\"[]\",\"groupJoins\":\"[]\",\"groupsData\":\"{\\\"groupCollections\\\":[],\\\"groupsLoadedAt\\\":null}\",\"members\":\"[]\",\"sessionData\":\"{\\\"isValidated\\\":true,\\\"isAuthorized\\\":true}\",\"tagsData\":\"{\\\"tags\\\":[],\\\"tagsLoadedAt\\\":null}\",\"tasksData\":\"{\\\"expiredTasks\\\":[],\\\"expiredTasksLoadedAt\\\":null}\",\"unreadsData\":\"{\\\"unreads\\\":[],\\\"unreadsLoadedAt\\\":null}\",\"user\":\"{\\\"avatarUpdatedAt\\\":\\\"2025-02-05T17:13:20.595+09:00\\\",\\\"authType\\\":\\\"normal\\\",\\\"sound\\\":\\\"electronic\\\",\\\"oniPositionPc\\\":\\\"middle\\\",\\\"oniPositionSp\\\":\\\"bottom\\\",\\\"appReviewStatus\\\":\\\"not_target\\\",\\\"viewMode\\\":\\\"full\\\",\\\"timeZone\\\":\\\"Asia/Tokyo\\\",\\\"email\\\":\\\"tool@eraxai.info\\\",\\\"provider\\\":\\\"email\\\",\\\"uid\\\":\\\"tool@eraxai.info\\\",\\\"lastname\\\":\\\"\\\",\\\"firstname\\\":\\\"\\\",\\\"id\\\":508549,\\\"nickname\\\":null,\\\"image\\\":null,\\\"isSuperUser\\\":false,\\\"avatar\\\":null,\\\"isTaskGuidePopoverShown\\\":false,\\\"isTaskCautionPopoverShown\\\":false,\\\"lastExpiredTaskAlertAt\\\":null,\\\"lastVisitCompanyDomain\\\":\\\"c20282\\\",\\\"searchOptions\\\":null,\\\"oniUser\\\":true,\\\"isGroupGuidePopoverShown\\\":false,\\\"versionOfMobile\\\":null,\\\"versionOfPc\\\":\\\"0.0.0\\\",\\\"isTestUser\\\":false,\\\"hasThumbnail\\\":false,\\\"wantInfoMail\\\":true,\\\"allGroupVisibility\\\":false,\\\"allGroupVisibilities\\\":null,\\\"viewOptions\\\":{\\\"viewModePc\\\":\\\"full\\\",\\\"viewModeSp\\\":\\\"full\\\"},\\\"slackAppImId\\\":null,\\\"isSendByEnter\\\":false,\\\"lastAuthenticatedAt\\\":\\\"2025-08-10T03:13:30.866+09:00\\\",\\\"isAvatarGuideDenied\\\":false,\\\"avatarGuideShownAt\\\":null,\\\"abTestPattern\\\":null,\\\"cdTestPattern\\\":null,\\\"otpRequiredForLogin\\\":null,\\\"defaultTasksCount\\\":3,\\\"visibleTaskInChats\\\":true,\\\"isBookmarked\\\":false,\\\"isInvitationGuideShown\\\":false,\\\"defaultIsAutoJoin\\\":true,\\\"hasDm\\\":true,\\\"allowPasswordChange\\\":false,\\\"canInform\\\":false,\\\"lang\\\":\\\"ja\\\",\\\"name\\\":\\\"株式会社EraX\\\",\\\"desktopVersion\\\":null,\\\"iosVersion\\\":null,\\\"androidVersion\\\":null,\\\"isConfirmed\\\":true,\\\"loginFailedAttempts\\\":0,\\\"accountLockedAt\\\":null,\\\"adminRoleJoinsCount\\\":0,\\\"hubspotContactId\\\":\\\"97015595560\\\",\\\"phone\\\":null,\\\"isShowPhoneSupport\\\":true,\\\"isImageDownsized\\\":true,\\\"zohoLeadId\\\":null,\\\"avatarUrl\\\":null,\\\"middleAvatarUrl\\\":null,\\\"largeAvatarUrl\\\":null,\\\"companyConfig\\\":{\\\"20282\\\":{\\\"newNoteSummaryDuration\\\":\\\"hours1\\\",\\\"unreadsSummaryDuration\\\":\\\"hours1\\\",\\\"expiredTasksSummaryTime\\\":\\\"09:30\\\",\\\"notifyWhenTaskComplete\\\":true,\\\"sendExpiredTasksSummary\\\":true,\\\"sendUnreadsSummary\\\":true,\\\"sendNewNoteSummary\\\":true,\\\"sendNewJoin\\\":true,\\\"sendGroupJoining\\\":true,\\\"notifyNewNoteSummary\\\":true,\\\"notifyExpiredTasksSummary\\\":true,\\\"notifyWhenNewJoin\\\":true,\\\"notifyWhenNewChat\\\":true,\\\"notifyWhenNewReaction\\\":true,\\\"notifyWhenNewEmotion\\\":true,\\\"notifyWhenGroupJoining\\\":true,\\\"didSendInvitation\\\":false,\\\"didCreateGroup\\\":false,\\\"didCreateStock\\\":false,\\\"didInviteMember\\\":false,\\\"notifyOnWday0\\\":true,\\\"notifyOnWday1\\\":true,\\\"notifyOnWday2\\\":true,\\\"notifyOnWday3\\\":true,\\\"notifyOnWday4\\\":true,\\\"notifyOnWday5\\\":true,\\\"notifyOnWday6\\\":true,\\\"stopNotificationFrom\\\":null,\\\"stopNotificationTo\\\":null,\\\"isSlackConnected\\\":false,\\\"notifyToSlack\\\":true,\\\"isTrial14Shown\\\":false,\\\"isTrial7Shown\\\":false,\\\"isTrial2Shown\\\":false,\\\"isTrial1Shown\\\":false,\\\"isTrialExpired1Shown\\\":false,\\\"isTrialExpired7Shown\\\":false,\\\"hideStartGuide\\\":false,\\\"isEvernoteConnected\\\":false,\\\"isEvernoteImportProcessing\\\":false,\\\"joinAt\\\":\\\"2025-02-05T17:19:00.566+09:00\\\",\\\"groupsOrderType\\\":\\\"name\\\",\\\"shouldShowInvitationRemind\\\":false,\\\"defaultViewOptions\\\":{\\\"viewModePc\\\":\\\"full\\\",\\\"viewModeSp\\\":\\\"full\\\"},\\\"defaultViewMode\\\":\\\"full\\\"}},\\\"sendSeminarInfo\\\":true,\\\"sendCaseStudy\\\":true,\\\"sendTrialGuide\\\":true,\\\"sendZoomOffer\\\":true,\\\"sendInfoForPaid\\\":true,\\\"isWelcomeExecuted\\\":true,\\\"isGroupExecuted\\\":false,\\\"isChatGroupExecuted\\\":true,\\\"isChatExecuted\\\":true,\\\"isStockExecuted\\\":false,\\\"isTaskExecuted\\\":false,\\\"isInvitationExecuted\\\":false,\\\"isTableExecuted\\\":true,\\\"introData\\\":{\\\"isWelcomeExecuted\\\":true,\\\"isGroupExecuted\\\":false,\\\"isChatGroupExecuted\\\":true,\\\"isChatExecuted\\\":true,\\\"isStockExecuted\\\":false,\\\"isTaskExecuted\\\":false,\\\"isInvitationExecuted\\\":false,\\\"isTableExecuted\\\":true}}\",\"_persist\":\"{\\\"version\\\":-1,\\\"rehydrated\\\":true}\"}"
+        }
+      ]
+    }
+  ]
+}
