@@ -5,3 +5,6 @@ cookies/
 mhtml/
 *.log
 .DS_Store
+
+stock-mhtml/
+session/

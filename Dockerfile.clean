@@ -1,0 +1,53 @@
+# Azure Container Instances用のイメージ（AMD64のみ）
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# package.jsonとpackage-lock.json（あれば）をコピー
+COPY package*.json ./
+
+# 依存関係をインストール
+RUN npm ci --only=production && \
+    npm install --save-dev typescript @types/node ts-node
+
+# ソースコードをコピー
+COPY tsconfig.json ./
+COPY src ./src
+
+# TypeScriptをビルド
+RUN npm run build
+
+# 実行用の軽量イメージ
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Playwright に必要なシステム依存関係をインストール
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+# 本番用の依存関係のみインストール
+COPY package*.json ./
+RUN npm ci --only=production
+
+# ビルドされたアプリケーションをコピー
+COPY --from=builder /app/dist ./dist
+
+# 必要なディレクトリを作成
+RUN mkdir -p /app/session /app/stock-mhtml /app/data
+
+# Playwrightの設定
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# 非rootユーザーで実行
+USER node
+
+# アプリケーションを起動
+CMD ["node", "dist/containerMain.js"]

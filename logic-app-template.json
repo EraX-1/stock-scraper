@@ -1,0 +1,159 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "defaultValue": "stock-scraper-scheduler",
+      "metadata": {
+        "description": "Logic App の名前"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "japaneast",
+      "metadata": {
+        "description": "リソースの場所"
+      }
+    },
+    "containerGroupResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Container Instance のリソースグループ名"
+      }
+    },
+    "containerGroupName": {
+      "type": "string",
+      "defaultValue": "stock-scraper-instance",
+      "metadata": {
+        "description": "Container Instance の名前"
+      }
+    }
+  },
+  "variables": {
+    "subscriptionId": "[subscription().subscriptionId]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "frequency": "Day",
+                "interval": 1,
+                "timeZone": "Tokyo Standard Time",
+                "startTime": "2024-01-01T09:00:00Z"
+              },
+              "type": "Recurrence"
+            }
+          },
+          "actions": {
+            "Create_Container_Instance": {
+              "type": "Http",
+              "inputs": {
+                "method": "PUT",
+                "uri": "[concat('https://management.azure.com/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('containerGroupResourceGroup'), '/providers/Microsoft.ContainerInstance/containerGroups/', parameters('containerGroupName'), '?api-version=2021-03-01')]",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": {
+                  "location": "[parameters('location')]",
+                  "properties": {
+                    "containers": [
+                      {
+                        "name": "stock-scraper",
+                        "properties": {
+                          "image": "stockregistry.azurecr.io/stock-scraper:latest",
+                          "resources": {
+                            "requests": {
+                              "cpu": 2,
+                              "memoryInGB": 4
+                            }
+                          },
+                          "environmentVariables": [
+                            {
+                              "name": "HEADLESS",
+                              "value": "true"
+                            },
+                            {
+                              "name": "DEBUG",
+                              "value": "false"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "imageRegistryCredentials": [
+                      {
+                        "server": "stockregistry.azurecr.io",
+                        "username": "{{ACR_USERNAME}}",
+                        "password": "{{ACR_PASSWORD}}"
+                      }
+                    ],
+                    "osType": "Linux",
+                    "restartPolicy": "Never"
+                  }
+                },
+                "authentication": {
+                  "type": "ManagedServiceIdentity"
+                }
+              },
+              "runAfter": {}
+            },
+            "Wait_for_Container_Completion": {
+              "type": "Until",
+              "expression": "@or(equals(body('Get_Container_Status')?['properties']?['instanceView']?['state'], 'Succeeded'), equals(body('Get_Container_Status')?['properties']?['instanceView']?['state'], 'Failed'))",
+              "limit": {
+                "count": 60,
+                "timeout": "PT2H"
+              },
+              "actions": {
+                "Get_Container_Status": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "GET",
+                    "uri": "[concat('https://management.azure.com/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('containerGroupResourceGroup'), '/providers/Microsoft.ContainerInstance/containerGroups/', parameters('containerGroupName'), '?api-version=2021-03-01')]",
+                    "authentication": {
+                      "type": "ManagedServiceIdentity"
+                    }
+                  }
+                },
+                "Delay": {
+                  "type": "Wait",
+                  "inputs": {
+                    "interval": {
+                      "count": 2,
+                      "unit": "Minute"
+                    }
+                  },
+                  "runAfter": {
+                    "Get_Container_Status": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Create_Container_Instance": [
+                  "Succeeded"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

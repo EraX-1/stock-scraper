@@ -11,7 +11,14 @@
     "scrape": "tsx src/improvedScraper.ts",
     "scrape-all": "tsx src/fullUpdateScraper.ts",
     "auto-sync": "tsx src/autoSync.ts",
-    "container": "tsx src/containerMain.ts"
+    "container": "tsx src/containerMain.ts",
+    "main-job": "tsx src/mainJob.ts",
+    "job-stats": "tsx src/mainJob.ts --stats",
+    "deploy-azure": "tsx src/azureDeploy.ts",
+    "cleanup": "tsx src/cleanup.ts",
+    "cleanup:stats": "tsx src/cleanup.ts --stats",
+    "cleanup:sessions": "tsx src/cleanup.ts --sessions",
+    "cleanup:mhtml": "tsx src/cleanup.ts --mhtml"
   },
   "keywords": [
     "scraper",
