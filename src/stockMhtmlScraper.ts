@@ -118,8 +118,11 @@ export class StockMhtmlScraper {
                     throw new Error(`ページタイトルが不正: "${pageTitle}"`);
                 }
                 
-                // 追加の安定化待機
-                await page.waitForTimeout(2000);
+                // 画像とアセットの完全読み込みを待機
+                await this.waitForAssetsLoaded(page);
+                
+                // 追加の安定化待機（画像読み込み用に延長）
+                await page.waitForTimeout(3000);
                 
                 // CDPセッションを取得してMHTML生成
                 const cdpSession = await page.context().newCDPSession(page);
@@ -279,6 +282,43 @@ export class StockMhtmlScraper {
             duration,
             savedFiles
         };
+    }
+    
+    /**
+     * 🖼️ 画像とアセットの完全読み込みを待機
+     */
+    private async waitForAssetsLoaded(page: any): Promise<void> {
+        try {
+            // 1. すべての画像の読み込み完了を待機
+            await page.waitForFunction(() => {
+                const images = Array.from(document.images);
+                if (images.length === 0) return true;
+                return images.every(img => img.complete && img.naturalHeight !== 0);
+            }, { timeout: 30000 });
+            
+            // 2. CSS背景画像の読み込み完了を待機
+            await page.waitForFunction(() => {
+                const elementsWithBgImage = Array.from(document.querySelectorAll('*')).filter(el => {
+                    const style = window.getComputedStyle(el);
+                    return style.backgroundImage && style.backgroundImage !== 'none';
+                });
+                return elementsWithBgImage.length === 0 || elementsWithBgImage.every(el => {
+                    const style = window.getComputedStyle(el);
+                    return style.backgroundImage.includes('data:') || el.offsetHeight > 0;
+                });
+            }, { timeout: 20000 });
+            
+            // 3. 動的コンテンツの読み込み完了を確認
+            await page.waitForFunction(() => {
+                const loaders = document.querySelectorAll('.loading, .spinner, [data-loading="true"], .lazy-loading');
+                return loaders.length === 0;
+            }, { timeout: 15000 });
+            
+            console.log(`🖼️ アセット読み込み完了`);
+            
+        } catch (error) {
+            console.log(`⚠️ アセット読み込み待機タイムアウト - 続行`);
+        }
     }
     
     /**

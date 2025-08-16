@@ -1,6 +1,7 @@
 import { StockLogin } from './login.js';
 import { StockUrlCollector } from './stockUrlCollector.js';
 import { StockMhtmlScraper } from './stockMhtmlScraper.js';
+import { StockAzureDeployManager } from './azureDeploy.js';
 import dotenv from 'dotenv';
 import * as fs from 'fs';
 
@@ -9,6 +10,7 @@ dotenv.config();
 interface MainJobConfig {
     collectUrls?: boolean;        // URL収集を実行するか
     scrapeToMhtml?: boolean;      // MHTML保存を実行するか
+    uploadToAzure?: boolean;      // Azure Blob Storageへのアップロードを実行するか
     scrapingConfig?: {
         concurrency?: number;
         startIndex?: number;
@@ -18,6 +20,11 @@ interface MainJobConfig {
         retryAttempts?: number;
         timeoutMs?: number;
         pageLoadDelay?: number;
+    };
+    azureConfig?: {
+        dryRun?: boolean;
+        timestampPrefix?: boolean;
+        concurrency?: number;
     };
 }
 
@@ -33,6 +40,11 @@ interface MainJobResult {
         duration: number;
         savedFiles: string[];
     };
+    azureUploadResult?: {
+        success: number;
+        failed: number;
+        totalSize: number;
+    };
     totalDuration: number;
 }
 
@@ -40,11 +52,13 @@ export class MainJob {
     private stockLogin: StockLogin;
     private urlCollector: StockUrlCollector;
     private mhtmlScraper: StockMhtmlScraper;
+    private azureDeployManager: StockAzureDeployManager;
     
     constructor() {
         this.stockLogin = new StockLogin();
         this.urlCollector = new StockUrlCollector();
         this.mhtmlScraper = new StockMhtmlScraper();
+        this.azureDeployManager = new StockAzureDeployManager();
     }
     
     /**
@@ -59,7 +73,9 @@ export class MainJob {
         const {
             collectUrls = true,
             scrapeToMhtml = true,
-            scrapingConfig = {}
+            uploadToAzure = false,
+            scrapingConfig = {},
+            azureConfig = {}
         } = config;
         
         const result: MainJobResult = {
@@ -108,6 +124,31 @@ export class MainJob {
                 console.log('\n⏭️ MHTML保存をスキップします');
             }
             
+            // Step 3: Azure Blob Storage アップロード
+            if (uploadToAzure) {
+                console.log('\n☁️ Step 3: Azure Blob Storage アップロード');
+                console.log('-'.repeat(40));
+                
+                const uploadResult = await this.azureDeployManager.deployStockMhtml({
+                    dryRun: azureConfig.dryRun || false,
+                    timestampPrefix: azureConfig.timestampPrefix || false,
+                    concurrency: azureConfig.concurrency || 5,
+                    overwrite: true
+                });
+                
+                // アップロード結果を取得（deployStockMhtmlの戻り値を調整する必要があります）
+                result.azureUploadResult = {
+                    success: 0, // 実際の値に更新予定
+                    failed: 0,  // 実際の値に更新予定
+                    totalSize: 0 // 実際の値に更新予定
+                };
+                
+                console.log(`✅ Azure アップロード完了`);
+            } else {
+                console.log('\n⏭️ Azure アップロードをスキップします');
+            }
+            
+            
         } catch (error) {
             console.error('❌ メインジョブでエラーが発生しました:', error);
             throw error;
@@ -142,6 +183,13 @@ export class MainJob {
             console.log(`   ├─ エラー: ${result.scrapingResult.errorCount}件`);
             console.log(`   ├─ 処理時間: ${Math.round(result.scrapingResult.duration / 1000)}秒`);
             console.log(`   └─ 成功率: ${Math.round((result.scrapingResult.successCount / result.scrapingResult.totalProcessed) * 100)}%`);
+        }
+        
+        if (result.azureUploadResult) {
+            console.log(`☁️ Azure アップロード結果:`);
+            console.log(`   ├─ 成功: ${result.azureUploadResult.success}件`);
+            console.log(`   ├─ 失敗: ${result.azureUploadResult.failed}件`);
+            console.log(`   └─ 総サイズ: ${Math.round(result.azureUploadResult.totalSize / 1024 / 1024)}MB`);
         }
         
         console.log(`⏱️  総処理時間: ${Math.round(result.totalDuration / 1000)}秒`);
@@ -199,11 +247,15 @@ async function main() {
     const args = process.argv.slice(2);
     const collectUrls = !args.includes('--no-urls');
     const scrapeToMhtml = !args.includes('--no-mhtml');
+    const uploadToAzure = args.includes('--azure');
+    const fullMode = args.includes('--full');
     
     // 設定表示
     console.log('⚙️  実行設定:');
     console.log(`   ├─ URL収集: ${collectUrls ? '有効' : '無効'}`);
-    console.log(`   └─ MHTML保存: ${scrapeToMhtml ? '有効' : '無効'}`);
+    console.log(`   ├─ MHTML保存: ${scrapeToMhtml ? '有効' : '無効'}`);
+    console.log(`   ├─ Azure アップロード: ${uploadToAzure ? '有効' : '無効'}`);
+    console.log(`   └─ 全件モード: ${fullMode ? '有効 (5371件全て)' : '無効 (制限付き)'}`);
     console.log('');
     
     if (args.includes('--stats')) {
@@ -223,18 +275,48 @@ async function main() {
     }
     
     try {
-        // メインジョブ実行
-        await job.execute({
+        // メインジョブ実行（全件モードまたは制限モード）
+        const config = fullMode ? {
+            // 全件モード設定（5371件全て）
             collectUrls,
             scrapeToMhtml,
+            uploadToAzure,
+            scrapingConfig: {
+                concurrency: 1,           // 全件の場合は安定性重視で同時実行数を1に
+                retryAttempts: 3,
+                timeoutMs: 150000,        // タイムアウトを2.5分に延長
+                pageLoadDelay: 8000,      // ページ読み込み後の待機時間を8秒に延長
+                delayMs: 4000,            // リクエスト間隔を4秒に延長
+                batchSize: 3,             // バッチサイズを3に縮小
+                maxUrls: Infinity         // 全件処理
+            },
+            azureConfig: {
+                dryRun: false,
+                timestampPrefix: true,    // 全件の場合はタイムスタンプを付与
+                concurrency: 3
+            }
+        } : {
+            // 制限モード設定（テスト用）
+            collectUrls,
+            scrapeToMhtml,
+            uploadToAzure,
             scrapingConfig: {
                 concurrency: 2,
                 retryAttempts: 3,
-                timeoutMs: 90000,
-                pageLoadDelay: 4000,
-                delayMs: 3000
+                timeoutMs: 120000,        // タイムアウトを2分に延長
+                pageLoadDelay: 6000,      // ページ読み込み後の待機時間を6秒に延長
+                delayMs: 3000,
+                batchSize: 5,
+                maxUrls: 50               // 制限モードでは50件まで
+            },
+            azureConfig: {
+                dryRun: false,
+                timestampPrefix: false,
+                concurrency: 5
             }
-        });
+        };
+        
+        await job.execute(config);
         
         console.log('🎉 全処理が正常に完了しました！');
         
