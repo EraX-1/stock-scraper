@@ -30,6 +30,11 @@
     "rag-index:blob": "tsx src/ragIndexer.ts --blob",
     "rag-index:batch10": "tsx src/ragIndexer.ts --batch=10",
     "rag-index:batch5": "tsx src/ragIndexer.ts --batch=5",
+    "blob-index": "tsx src/stockBlobIndexer.ts",
+    "blob-index:dry": "tsx src/stockBlobIndexer.ts --dry-run",
+    "blob-index:slow": "tsx src/stockBlobIndexer.ts --concurrency 1 --delay 2000",
+    "blob-index:fast": "tsx src/stockBlobIndexer.ts --concurrency 5 --delay 200",
+    "blob-index:turbo": "tsx src/stockBlobIndexer.ts --concurrency 10 --delay 100",
     "cleanup": "tsx src/cleanup.ts",
     "cleanup:stats": "tsx src/cleanup.ts --stats",
     "cleanup:sessions": "tsx src/cleanup.ts --sessions",
@@ -46,7 +51,9 @@
     "@azure/storage-blob": "^12.28.0",
     "@playwright/browser-chromium": "^1.54.1",
     "playwright": "^1.54.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.1",

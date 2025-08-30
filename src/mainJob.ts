@@ -52,13 +52,13 @@ export class MainJob {
     private stockLogin: StockLogin;
     private urlCollector: StockUrlCollector;
     private mhtmlScraper: StockMhtmlScraper;
-    private azureDeployManager: StockAzureDeployManager;
+    private azureDeployManager?: StockAzureDeployManager;
     
     constructor() {
         this.stockLogin = new StockLogin();
         this.urlCollector = new StockUrlCollector();
         this.mhtmlScraper = new StockMhtmlScraper();
-        this.azureDeployManager = new StockAzureDeployManager();
+        // Azure Deploy Manager は必要時に初期化
     }
     
     /**
@@ -128,6 +128,11 @@ export class MainJob {
             if (uploadToAzure) {
                 console.log('\n☁️ Step 3: Azure Blob Storage アップロード');
                 console.log('-'.repeat(40));
+                
+                // Azure Deploy Manager を遅延初期化
+                if (!this.azureDeployManager) {
+                    this.azureDeployManager = new StockAzureDeployManager();
+                }
                 
                 const uploadResult = await this.azureDeployManager.deployStockMhtml({
                     dryRun: azureConfig.dryRun || false,

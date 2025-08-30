@@ -132,8 +132,16 @@ export class StockLogin {
         // 新規ログイン処理
         try {
             const loginUrl = process.env.STOCK_LOGIN_URL!;
-            const email = process.env.STOCK_EMAIL!;
-            const password = process.env.STOCK_PASSWORD!;
+            const email = process.env.STOCK_EMAIL;
+            const password = process.env.STOCK_PASSWORD;
+
+            // 認証情報のチェック
+            if (!email || !password) {
+                console.log('❌ Stock-app認証情報が不足しています:');
+                console.log(`   STOCK_EMAIL: ${email ? '設定済み' : '未設定'}`);
+                console.log(`   STOCK_PASSWORD: ${password ? '設定済み' : '未設定'}`);
+                throw new Error('❌ ログインに必要な認証情報が不足しています');
+            }
 
             console.log('🔗 ログインページにアクセス中...');
             await this.page.goto(loginUrl);
@@ -145,10 +153,26 @@ export class StockLogin {
             await this.page.fill('input[type="password"]', password);
 
             console.log('🖱️ ログインボタンをクリック中...');
-            await this.page.click('button[type="submit"]');
+            
+            // モーダルダイアログがある場合は閉じる
+            try {
+                const modalSelector = 'div[role="dialog"].modal.show';
+                const modal = await this.page.$(modalSelector);
+                if (modal) {
+                    console.log('⚠️ モーダルダイアログを検出、閉じています...');
+                    // Escキーでモーダルを閉じる
+                    await this.page.keyboard.press('Escape');
+                    await this.page.waitForTimeout(1000);
+                }
+            } catch (e) {
+                console.log('ℹ️ モーダルダイアログなし、続行します');
+            }
+            
+            // ログインボタンをクリック
+            await this.page.click('button[type="submit"]', { timeout: 5000 });
 
             console.log('⏳ リダイレクトを待機中...');
-            await this.page.waitForURL(url => url.toString().includes('dashboard'), { timeout: 10000 });
+            await this.page.waitForURL(url => url.toString().includes('dashboard'), { timeout: 15000 });
 
             console.log('🎉 ログイン成功！');
             

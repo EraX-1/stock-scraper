@@ -11,18 +11,35 @@ async function main() {
   try {
     const mainJob = new MainJob();
     
-    // メインジョブ実行（コンテナ用設定）
+    // 環境変数から設定を読み取り
+    const isTestMode = process.env.TEST_MODE === 'true';
+    const concurrency = parseInt(process.env.SCRAPE_CONCURRENCY || '1');
+    const batchSize = parseInt(process.env.SCRAPE_BATCH_SIZE || '5');
+    const timeoutMs = parseInt(process.env.SCRAPE_TIMEOUT_MS || '120000');
+    const pageLoadDelay = parseInt(process.env.PAGE_LOAD_DELAY || '5000');
+    const delayMs = parseInt(process.env.SCRAPE_DELAY_MS || '5000');
+    const maxRetries = parseInt(process.env.MAX_RETRY_ATTEMPTS || '3');
+    const maxUrlsCollect = parseInt(process.env.MAX_URLS_COLLECT || '0');
+    const maxScrapeCount = parseInt(process.env.MAX_SCRAPE_COUNT || '0');
+    
     console.log('📊 Stock スクレイピングを実行中...');
+    console.log(`🔧 実行モード: ${isTestMode ? 'TEST' : 'PRODUCTION'}`);
+    console.log(`⚙️ 並行処理数: ${concurrency}, バッチサイズ: ${batchSize}`);
+    
+    // メインジョブ実行（環境変数ベースの設定）
     await mainJob.execute({
       collectUrls: true,
       scrapeToMhtml: true,
+      uploadToAzure: !isTestMode,  // テストモードではAzure展開をスキップ
       scrapingConfig: {
-        concurrency: 1,           // コンテナ環境では安定性重視
-        retryAttempts: 3,
-        timeoutMs: 120000,        // タイムアウトを長めに設定
-        pageLoadDelay: 5000,      // ページ読み込み待機時間を長めに
-        delayMs: 5000,            // リクエスト間隔を長めに
-        batchSize: 3              // バッチサイズを小さく
+        concurrency,
+        retryAttempts: maxRetries,
+        timeoutMs,
+        pageLoadDelay,
+        delayMs,
+        batchSize,
+        maxUrls: isTestMode ? maxUrlsCollect : undefined,
+        startIndex: 0
       }
     });
     

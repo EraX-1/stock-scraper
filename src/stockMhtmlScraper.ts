@@ -304,7 +304,8 @@ export class StockMhtmlScraper {
                 });
                 return elementsWithBgImage.length === 0 || elementsWithBgImage.every(el => {
                     const style = window.getComputedStyle(el);
-                    return style.backgroundImage.includes('data:') || el.offsetHeight > 0;
+                    const htmlEl = el as HTMLElement;
+                    return style.backgroundImage.includes('data:') || htmlEl.offsetHeight > 0;
                 });
             }, { timeout: 20000 });
             

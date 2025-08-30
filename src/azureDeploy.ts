@@ -207,13 +207,14 @@ export class StockAzureDeployManager {
     
     /**
      * Blobプレフィックスを生成
+     * qast-scraperと同様の構造で stock-mhtml/data/ ディレクトリに配置
      */
     private getBlobPrefix(timestampPrefix: boolean): string {
         if (timestampPrefix) {
             const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-            return `stock-mhtml/${timestamp}`;
+            return `stock-mhtml/data/${timestamp}`;
         }
-        return 'stock-mhtml';
+        return 'stock-mhtml/data';
     }
     
     /**
